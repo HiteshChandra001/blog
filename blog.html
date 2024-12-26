@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+    header {
+      background-color: #343a40;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-group button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .form-group button:hover {
+      background-color: #0056b3;
+    }
+    .blog-list {
+      margin-top: 2rem;
+    }
+    .blog-item {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Blog Website</h1>
+  </header>
+  <div class="container">
+    <h2>Add New Blog</h2>
+    <div class="form-group">
+      <label for="title">Title:</label>
+      <input type="text" id="title" placeholder="Enter blog title" />
+    </div>
+    <div class="form-group">
+      <label for="content">Content:</label>
+      <textarea id="content" rows="5" placeholder="Enter blog content"></textarea>
+    </div>
+    <div class="form-group">
+      <button onclick="addBlog()">Add Blog</button>
+    </div>
+    <h2>All Blogs</h2>
+    <div class="blog-list" id="blogList"></div>
+  </div>
+  <script>
+    async function fetchBlogs() {
+      const response = await fetch("http://localhost:8080/api/blogs");
+      const blogs = await response.json();
+      const blogList = document.getElementById("blogList");
+      blogList.innerHTML = blogs
+        .map(blog => `
+          <div class="blog-item">
+            <h3>${blog.title}</h3>
+            <p>${blog.content}</p>
+          </div>
+        `)
+        .join("");
+    }
+
+    async function addBlog() {
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+
+      if (!title || !content) {
+        alert("Both fields are required!");
+        return;
+      }
+
+      const response = await fetch("http://localhost:8080/api/blogs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, content }),
+      });
+
+      if (response.ok) {
+        alert("Blog added successfully!");
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+        fetchBlogs();
+      } else {
+        alert("Failed to add blog!");
+      }
+    }
+
+    // Initial fetch of blogs
+    fetchBlogs();
+  </script>
+</body>
+</html>
